@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Skype Killer</title>
+    <script src="http://static.opentok.com/webrtc/v2.2/js/opentok.min.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css" media="screen">
+      #publisher {
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 99;
+      }
+      #subscribers {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 200px;
+        left: 0;
+      }
+      #textchat {
+        position: absolute;
+        bottom: 0;
+        height: 200px;
+        left: 0;
+        right: 0;
+      }
+      #history {
+        width: 100%;
+        height: calc(100% - 20px);
+        background-color: lightgrey;
+        overflow: auto;
+      }
+      input#msgTxt {
+        height: 20px;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+      }
+      #history .mine {
+        text-align: right;
+        margin-right: 10px;
+      }
+      #history .theirs {
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="publisher"></div>
+    <div id="subscribers"></div>
+    <div id="textchat">
+      <div id="history"></div>
+      <form>
+        <input type="text" placeholder="Message" id="msgTxt"></input>
+      </form>
+    </div>
+    <script type="text/javascript">
+    var sessionId = 'YOUR_SESSION_ID',
+      token = 'YOUR_TOKEN',
+      apiKey = 'YOUR_API_KEY';
+
+      var session = OT.initSession(apiKey, sessionId),
+        publisher = OT.initPublisher('publisher', {
+          width: 100,
+          height: 100
+        });
+      
+      session.on('streamCreated', function (event) {
+        session.subscribe(event.stream, 'subscribers', {
+          insertMode: 'append',
+          width: '100%',
+          height: '100%'
+        });
+      });
+      session.connect(token, function (err) {
+        if (!err) {
+          session.publish(publisher);
+        }
+      });
+      
+      
+      //Text Chat
+      var form = document.querySelector('form'),
+        msgTxt = document.querySelector('#msgTxt');
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        session.signal({
+          type: 'msg',
+          data: msgTxt.value
+        }, function (err) {
+          if (!err) {
+            msgTxt.value = '';
+          }
+        });
+      });
+      
+      var msgHistory = document.querySelector('#history');
+      session.on('signal:msg', function (event) {
+        var msg = document.createElement('div');
+        msg.innerHTML = event.data;
+        msg.className = event.from.connectionId === session.connection.connectionId ? 'mine' : 'theirs';
+        msgHistory.appendChild(msg);
+        msg.scrollIntoView();
+      });
+    </script>
+  </body>
+</html>

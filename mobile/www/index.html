@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <title>Skype Killer</title>
+    <script src="opentok.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="cordova.js"></script>
+    <style type="text/css" media="screen">
+    #publisher {
+      width: 100px;
+      height: 100px;
+      position: absolute;
+      top: 20px;
+      right: 0;
+      z-index: 99;
+    }
+    #subscribers {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 200px;
+      left: 0;
+    }
+    #textchat {
+      position: absolute;
+      bottom: 0;
+      height: 200px;
+      left: 0;
+      right: 0;
+    }
+    #history {
+      width: 100%;
+      height: calc(100% - 20px);
+      background-color: lightgrey;
+      overflow: auto;
+    }
+    input#msgTxt {
+      height: 20px;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+    #history .mine {
+      text-align: right;
+      margin-right: 10px;
+    }
+    #history .theirs {
+      margin-left: 10px;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="publisher"></div>
+    <div id="subscribers"></div>
+    <div id="textchat">
+      <div id="history"></div>
+      <form>
+        <input id="msgTxt" type="text"></input>
+      </form>
+    </div>
+    <script type="text/javascript">
+    document.addEventListener('deviceready', function () {
+      var sessionId = '2_MX4zOTQ5NzJ-fjE0MTQ1NDQ3ODA3ODJ-R3JrWjBhd0h5aVRzcFJrOGxJdytuZHAyfn4',
+        token = 'T1==cGFydG5lcl9pZD0zOTQ5NzImc2lnPTI5ZWEyZWY3NTFlZDI0NmJjYzIxZGI5ZmFlZDIzOTY3MzZlZTAwZTM6cm9sZT1wdWJsaXNoZXImc2Vzc2lvbl9pZD0yX01YNHpPVFE1TnpKLWZqRTBNVFExTkRRM09EQTNPREotUjNKcldqQmhkMGg1YVZSemNGSnJPR3hKZHl0dVpIQXlmbjQmY3JlYXRlX3RpbWU9MTQxNDU0NDc5MyZub25jZT0wLjc2ODMzMTk5NzUwNDcxNzcmZXhwaXJlX3RpbWU9MTQxNzEzNjc2OA==',
+        apiKey = '394972';
+      
+      var session = OT.initSession(apiKey, sessionId),
+        publisher = OT.initPublisher('publisher', {
+          insertMode: 'append',
+          width: 100,
+          height: 100
+        });
+      session.on('streamCreated', function (event) {
+        session.subscribe(event.stream, 'subscribers', {
+          insertMode: 'append'
+        });
+      });
+      session.connect(token, function (err) {
+        if (!err) {
+          session.publish(publisher);
+        }
+      });
+    
+      //Text Chat
+      var form = document.querySelector('form'),
+        msgTxt = document.querySelector('#msgTxt');
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        session.signal({
+          type: 'msg',
+          data: msgTxt.value
+        }, function (err) {
+          if (!err) {
+            msgTxt.value = '';
+          }
+        });
+      });
+    
+      var msgHistory = document.querySelector('#history');
+      session.on('signal:msg', function (event) {
+        var msg = document.createElement('div');
+        msg.innerHTML = event.data;
+        msg.className = event.from.connectionId === session.connection.connectionId ? 'mine' : 'theirs';
+        msgHistory.appendChild(msg);
+      });
+    }, false);
+    </script>
+  </body>
+</html>
