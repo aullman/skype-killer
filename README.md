@@ -2,6 +2,10 @@
 
 A quick demo of building Skype, including video chat and text chat using OpenTok. Uses node-webkit for a Desktop App and Cordova for an iOS app
 
+## Video Walkthrough
+
+http://vimeo.com/112225603
+
 ## Getting Started with OpenTok
 
 1. If you haven't already, sign up for OpenTok - Go to [www.tokbox.com](https://www.tokbox.com) and click the "Sign Up" link. 
