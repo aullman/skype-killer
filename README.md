@@ -4,7 +4,7 @@ A quick demo of building Skype, including video chat and text chat using OpenTok
 
 ## Video Walkthrough
 
-http://vimeo.com/112225603
+https://vimeo.com/112797864
 
 ## Getting Started with OpenTok
 
